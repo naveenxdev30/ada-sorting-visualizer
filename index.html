@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ADA Sorting Algorithm Visualizer & Performance Analyzer</title>
+  <meta name="description" content="Interactive, mobile-friendly ADA Sorting Algorithm Visualizer and Performance Analyzer built with HTML5, CSS3, and modern JavaScript.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-group">
+        <div class="brand-icon">📊</div>
+        <div>
+          <h1 class="brand-title">ADA Sorting Visualizer</h1>
+          <p class="brand-subtitle">Analysis & Design of Algorithms • Interactive Visualizer & Performance Analyzer</p>
+        </div>
+      </div>
+      
+      <!-- NAV TABS -->
+      <nav class="nav-tabs" role="tablist">
+        <button class="tab-btn active" data-tab="visualizer" role="tab" aria-selected="true">
+          <span class="tab-icon">📊</span> Visualizer
+        </button>
+        <button class="tab-btn" data-tab="benchmark" role="tab" aria-selected="false">
+          <span class="tab-icon">⚡</span> Performance Analyzer
+        </button>
+        <button class="tab-btn" data-tab="guide" role="tab" aria-selected="false">
+          <span class="tab-icon">📚</span> Algorithm Guide
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="main-content">
+
+    <!-- =================================================================== -->
+    <!-- TAB 1: VISUALIZER -->
+    <!-- =================================================================== -->
+    <section id="tab-visualizer" class="tab-panel active">
+      
+      <!-- CONTROLS PANEL -->
+      <div class="card controls-card">
+        <div class="controls-grid">
+          
+          <!-- Algorithm Selection -->
+          <div class="control-group">
+            <label for="algoSelect" class="control-label">Algorithm</label>
+            <select id="algoSelect" class="form-select">
+              <option value="bubble">Bubble Sort</option>
+              <option value="selection">Selection Sort</option>
+              <option value="insertion">Insertion Sort</option>
+              <option value="merge">Merge Sort</option>
+              <option value="quick" selected>Quick Sort</option>
+            </select>
+          </div>
+
+          <!-- Array Size Slider -->
+          <div class="control-group">
+            <div class="label-with-val">
+              <label for="sizeSlider" class="control-label">Array Size (n)</label>
+              <span id="sizeVal" class="badge-val">25</span>
+            </div>
+            <input type="range" id="sizeSlider" class="form-range" min="5" max="80" value="25">
+          </div>
+
+          <!-- Dataset Distribution -->
+          <div class="control-group">
+            <label for="distSelect" class="control-label">Distribution</label>
+            <select id="distSelect" class="form-select">
+              <option value="random-mixed">Random (Mixed +/-)</option>
+              <option value="random-pos">Random (Positive Only)</option>
+              <option value="nearly-sorted">Nearly Sorted</option>
+              <option value="reverse-sorted">Reverse Sorted</option>
+              <option value="already-sorted">Already Sorted</option>
+              <option value="many-duplicates">Many Duplicates</option>
+            </select>
+          </div>
+
+          <!-- Speed Slider -->
+          <div class="control-group">
+            <div class="label-with-val">
+              <label for="speedSlider" class="control-label">Speed / Delay</label>
+              <span id="speedVal" class="badge-val">40ms</span>
+            </div>
+            <input type="range" id="speedSlider" class="form-range" min="5" max="300" value="40">
+          </div>
+
+        </div>
+
+        <!-- Custom Array Input Row -->
+        <div class="custom-input-row">
+          <div class="custom-input-group">
+            <label for="customInput" class="control-label">Custom Array</label>
+            <input type="text" id="customInput" class="form-input" placeholder="e.g. 15, -8, 42, 0, -20, 33, 15, -4, 9">
+          </div>
+          <button id="btnLoadCustom" class="btn btn-secondary">
+            📥 Load Custom
+          </button>
+        </div>
+
+        <!-- Button Action Bar -->
+        <div class="actions-bar">
+          <button id="btnGenerate" class="btn btn-primary">
+            🎲 Generate Array
+          </button>
+          <button id="btnStart" class="btn btn-success">
+            ▶ Start Sorting
+          </button>
+          <button id="btnPause" class="btn btn-warning" disabled>
+            ⏸ Pause
+          </button>
+          <button id="btnStep" class="btn btn-info">
+            ⏭ Step
+          </button>
+          <button id="btnReset" class="btn btn-danger">
+            ⏹ Reset
+          </button>
+        </div>
+      </div>
+
+      <!-- CANVAS VISUALIZER CARD -->
+      <div class="card canvas-card">
+        
+        <!-- Live Action Status Bar -->
+        <div class="canvas-header">
+          <div class="status-indicator">
+            <span class="status-dot"></span>
+            <span id="statusText" class="status-text">Ready. Choose an algorithm and click "Start Sorting".</span>
+          </div>
+        </div>
+
+        <!-- Visualizer Canvas Container -->
+        <div class="canvas-container">
+          <canvas id="sortCanvas"></canvas>
+        </div>
+
+        <!-- Color Legend -->
+        <div class="legend-bar">
+          <div class="legend-item"><span class="legend-color color-default"></span> Default</div>
+          <div class="legend-item"><span class="legend-color color-comparing"></span> Comparing</div>
+          <div class="legend-item"><span class="legend-color color-swapping"></span> Swapping/Shift</div>
+          <div class="legend-item"><span class="legend-color color-special"></span> Pivot / Key</div>
+          <div class="legend-item"><span class="legend-color color-min"></span> Minimum</div>
+          <div class="legend-item"><span class="legend-color color-sorted"></span> Sorted</div>
+        </div>
+
+      </div>
+
+      <!-- METRICS & COMPLEXITY ROW -->
+      <div class="stats-row">
+        
+        <!-- Real-Time Metrics Card -->
+        <div class="card stat-card">
+          <h2 class="card-title">Real-Time Metrics</h2>
+          <div class="metrics-grid">
+            <div class="metric-box">
+              <span class="metric-label">Execution Time</span>
+              <span id="metricTime" class="metric-value text-green">0.000 s</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label">Comparisons</span>
+              <span id="metricComp" class="metric-value text-yellow">0</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label">Swaps / Shifts</span>
+              <span id="metricSwaps" class="metric-value text-red">0</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label">Array Size (n)</span>
+              <span id="metricSize" class="metric-value text-purple">25</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Theoretical Complexity Card -->
+        <div class="card stat-card">
+          <h2 class="card-title" id="complexityAlgoTitle">Quick Sort Properties</h2>
+          <div class="complexity-grid">
+            <div class="comp-box">
+              <span class="comp-label">Best Time:</span>
+              <span id="compBest" class="comp-val text-green">Ω(n log n)</span>
+            </div>
+            <div class="comp-box">
+              <span class="comp-label">Average Time:</span>
+              <span id="compAvg" class="comp-val text-yellow">Θ(n log n)</span>
+            </div>
+            <div class="comp-box">
+              <span class="comp-label">Worst Time:</span>
+              <span id="compWorst" class="comp-val text-red">O(n²)</span>
+            </div>
+            <div class="comp-box">
+              <span class="comp-label">Space:</span>
+              <span id="compSpace" class="comp-val text-cyan">O(log n)</span>
+            </div>
+            <div class="comp-box">
+              <span class="comp-label">Stability:</span>
+              <span id="compStable" class="comp-val text-purple">No</span>
+            </div>
+            <div class="comp-box">
+              <span class="comp-label">In-Place:</span>
+              <span id="compInplace" class="comp-val text-orange">Yes</span>
+            </div>
+          </div>
+          <p id="compDesc" class="comp-desc">
+            Selects a pivot element, partitions the array so smaller elements go left and larger go right, then recursively sorts sub-partitions.
+          </p>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 2: PERFORMANCE ANALYZER & BENCHMARK -->
+    <!-- =================================================================== -->
+    <section id="tab-benchmark" class="tab-panel">
+      
+      <!-- SECTION 1: THEORETICAL COMPARISON TABLE -->
+      <div class="card">
+        <h2 class="section-title">1. Theoretical Comparison Matrix (All 5 Algorithms)</h2>
+        <p class="section-desc">Comprehensive reference table comparing theoretical asymptotic complexity and design properties.</p>
+        
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Algorithm</th>
+                <th>Paradigm</th>
+                <th>Best Case Time</th>
+                <th>Average Case Time</th>
+                <th>Worst Case Time</th>
+                <th>Space Complexity</th>
+                <th>Stable?</th>
+                <th>In-Place?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Bubble Sort</strong></td>
+                <td>Brute Force / Exchange</td>
+                <td><span class="badge badge-green">Ω(n)</span></td>
+                <td><span class="badge badge-yellow">Θ(n²)</span></td>
+                <td><span class="badge badge-red">O(n²)</span></td>
+                <td><span class="badge badge-cyan">O(1)</span></td>
+                <td>Yes</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <td><strong>Selection Sort</strong></td>
+                <td>Decrease & Conquer</td>
+                <td><span class="badge badge-yellow">Ω(n²)</span></td>
+                <td><span class="badge badge-yellow">Θ(n²)</span></td>
+                <td><span class="badge badge-red">O(n²)</span></td>
+                <td><span class="badge badge-cyan">O(1)</span></td>
+                <td>No</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <td><strong>Insertion Sort</strong></td>
+                <td>Incremental Approach</td>
+                <td><span class="badge badge-green">Ω(n)</span></td>
+                <td><span class="badge badge-yellow">Θ(n²)</span></td>
+                <td><span class="badge badge-red">O(n²)</span></td>
+                <td><span class="badge badge-cyan">O(1)</span></td>
+                <td>Yes</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <td><strong>Merge Sort</strong></td>
+                <td>Divide & Conquer</td>
+                <td><span class="badge badge-green">Ω(n log n)</span></td>
+                <td><span class="badge badge-green">Θ(n log n)</span></td>
+                <td><span class="badge badge-green">O(n log n)</span></td>
+                <td><span class="badge badge-purple">O(n)</span></td>
+                <td>Yes</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td><strong>Quick Sort</strong></td>
+                <td>Divide & Conquer</td>
+                <td><span class="badge badge-green">Ω(n log n)</span></td>
+                <td><span class="badge badge-green">Θ(n log n)</span></td>
+                <td><span class="badge badge-red">O(n²)</span></td>
+                <td><span class="badge badge-cyan">O(log n)</span></td>
+                <td>No</td>
+                <td>Yes</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SECTION 2: EMPIRICAL BENCHMARK ENGINE -->
+      <div class="card" style="margin-top: 1.5rem;">
+        <h2 class="section-title">2. Live Empirical Benchmark Engine</h2>
+        <p class="section-desc">Test all 5 algorithms simultaneously on an identical dataset to witness empirical performance divergence.</p>
+        
+        <div class="benchmark-controls">
+          <div class="control-group">
+            <label for="benchSizeSelect" class="control-label">Benchmark Size (n)</label>
+            <select id="benchSizeSelect" class="form-select">
+              <option value="100">100 elements</option>
+              <option value="500">500 elements</option>
+              <option value="1000" selected>1,000 elements</option>
+              <option value="2000">2,000 elements</option>
+              <option value="5000">5,000 elements</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="benchDistSelect" class="control-label">Data Pattern</label>
+            <select id="benchDistSelect" class="form-select">
+              <option value="random-mixed">Random (Mixed +/-)</option>
+              <option value="nearly-sorted">Nearly Sorted</option>
+              <option value="reverse-sorted">Reverse Sorted</option>
+              <option value="already-sorted">Already Sorted</option>
+              <option value="many-duplicates">Many Duplicates</option>
+            </select>
+          </div>
+
+          <button id="btnRunBenchmark" class="btn btn-success" style="align-self: flex-end;">
+            🚀 Run Benchmark on All 5
+          </button>
+        </div>
+
+        <div id="benchProgress" class="bench-status" style="display: none;">
+          <span class="spinner"></span> Running benchmark suite on identical datasets... Please wait.
+        </div>
+
+        <!-- Benchmark Results Table -->
+        <div class="table-responsive" style="margin-top: 1rem;">
+          <table id="benchmarkTable" class="data-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Algorithm</th>
+                <th>Input Size (n)</th>
+                <th>Comparisons</th>
+                <th>Swaps / Shifts</th>
+                <th>CPU Time (ms)</th>
+                <th>Theoretical Verification</th>
+              </tr>
+            </thead>
+            <tbody id="benchmarkTbody">
+              <tr>
+                <td colspan="7" class="text-center text-muted" style="padding: 2rem;">
+                  Click "Run Benchmark on All 5" to execute the test suite.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empirical Findings Box -->
+        <div class="findings-box" style="margin-top: 1.25rem;">
+          <h3 class="findings-title">💡 ADA Empirical Takeaway & Observations</h3>
+          <p id="findingsText" class="findings-text">
+            Execute the benchmark to compare real execution times and verify theoretical time complexities ($O(n \log n)$ vs $O(n^2)$).
+          </p>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 3: ALGORITHM GUIDE -->
+    <!-- =================================================================== -->
+    <section id="tab-guide" class="tab-panel">
+      
+      <div class="guide-grid">
+        
+        <!-- Bubble Sort Guide -->
+        <div class="card guide-card">
+          <div class="guide-header">
+            <h2 class="guide-title">1. Bubble Sort</h2>
+            <span class="badge badge-yellow">Brute Force / Exchange</span>
+          </div>
+          <p class="guide-text">
+            Iterates through the list, comparing adjacent elements and swapping them if out of order. With the <strong>swapped flag optimization</strong>, it terminates in a single pass on already-sorted arrays.
+          </p>
+          <ul class="guide-list">
+            <li><strong>Best Time:</strong> Ω(n) (when already sorted)</li>
+            <li><strong>Average Time:</strong> Θ(n²)</li>
+            <li><strong>Worst Time:</strong> O(n²) (reverse sorted)</li>
+            <li><strong>Auxiliary Space:</strong> O(1) (in-place)</li>
+            <li><strong>Stability:</strong> Stable</li>
+            <li><strong>Practical Use:</strong> Pedagogical demonstration and educational tracing.</li>
+          </ul>
+        </div>
+
+        <!-- Selection Sort Guide -->
+        <div class="card guide-card">
+          <div class="guide-header">
+            <h2 class="guide-title">2. Selection Sort</h2>
+            <span class="badge badge-yellow">Decrease & Conquer</span>
+          </div>
+          <p class="guide-text">
+            Divides the array into sorted and unsorted regions. Repeatedly searches the unsorted region for the minimum element and swaps it with the first unsorted position.
+          </p>
+          <ul class="guide-list">
+            <li><strong>Best Time:</strong> Ω(n²) (always searches unsorted region)</li>
+            <li><strong>Average Time:</strong> Θ(n²)</li>
+            <li><strong>Worst Time:</strong> O(n²)</li>
+            <li><strong>Auxiliary Space:</strong> O(1) (in-place)</li>
+            <li><strong>Stability:</strong> Unstable (standard in-place)</li>
+            <li><strong>Practical Use:</strong> Systems where memory write cycles are costly (at most n-1 swaps).</li>
+          </ul>
+        </div>
+
+        <!-- Insertion Sort Guide -->
+        <div class="card guide-card">
+          <div class="guide-header">
+            <h2 class="guide-title">3. Insertion Sort</h2>
+            <span class="badge badge-green">Incremental Approach</span>
+          </div>
+          <p class="guide-text">
+            Builds a sorted array one element at a time by picking the next key and shifting larger elements in the sorted prefix to the right to make room.
+          </p>
+          <ul class="guide-list">
+            <li><strong>Best Time:</strong> Ω(n) (nearly or already sorted)</li>
+            <li><strong>Average Time:</strong> Θ(n²)</li>
+            <li><strong>Worst Time:</strong> O(n²)</li>
+            <li><strong>Auxiliary Space:</strong> O(1) (in-place)</li>
+            <li><strong>Stability:</strong> Stable</li>
+            <li><strong>Practical Use:</strong> Small datasets (n < 30) and nearly-sorted inputs. Core component of Timsort.</li>
+          </ul>
+        </div>
+
+        <!-- Merge Sort Guide -->
+        <div class="card guide-card">
+          <div class="guide-header">
+            <h2 class="guide-title">4. Merge Sort</h2>
+            <span class="badge badge-cyan">Divide & Conquer</span>
+          </div>
+          <p class="guide-text">
+            Divides the array recursively into two equal halves until single-element arrays remain, then merges them in sorted order using auxiliary buffers.
+          </p>
+          <ul class="guide-list">
+            <li><strong>Best Time:</strong> Ω(n log n)</li>
+            <li><strong>Average Time:</strong> Θ(n log n)</li>
+            <li><strong>Worst Time:</strong> O(n log n) (guaranteed bound)</li>
+            <li><strong>Auxiliary Space:</strong> O(n) (out-of-place)</li>
+            <li><strong>Stability:</strong> Stable</li>
+            <li><strong>Practical Use:</strong> Linked list sorting, external tape/disk sorting, systems requiring guaranteed O(n log n).</li>
+          </ul>
+        </div>
+
+        <!-- Quick Sort Guide -->
+        <div class="card guide-card">
+          <div class="guide-header">
+            <h2 class="guide-title">5. Quick Sort</h2>
+            <span class="badge badge-purple">Divide & Conquer / Partitioning</span>
+          </div>
+          <p class="guide-text">
+            Selects a pivot element and partitions the array into elements smaller than or equal to the pivot on the left and larger on the right, then recurses on both halves.
+          </p>
+          <ul class="guide-list">
+            <li><strong>Best Time:</strong> Ω(n log n)</li>
+            <li><strong>Average Time:</strong> Θ(n log n)</li>
+            <li><strong>Worst Time:</strong> O(n²) (mitigated with median pivot)</li>
+            <li><strong>Auxiliary Space:</strong> O(log n) (recursion stack)</li>
+            <li><strong>Stability:</strong> Unstable</li>
+            <li><strong>Practical Use:</strong> Default general-purpose in-memory sorting of arrays due to superior cache locality.</li>
+          </ul>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="app-footer">
+    <p>ADA Sorting Algorithm Visualizer & Performance Analyzer • Pure HTML5, CSS3, & Modern JavaScript</p>
+    <p class="footer-sub">Designed for College Analysis & Design of Algorithms (ADA) Projects</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
